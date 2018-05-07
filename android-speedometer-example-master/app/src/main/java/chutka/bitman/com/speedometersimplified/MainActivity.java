@@ -1,16 +1,23 @@
 package chutka.bitman.com.speedometersimplified;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView image;
     static ProgressDialog locate;
     static int p = 0;
-
+    int PERMISSIONS_BUZZ_REQUEST = 0xABC;
     private ServiceConnection sc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -49,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         bindService(i, sc, BIND_AUTO_CREATE);
         status = true;
         startTime = System.currentTimeMillis();
-       // startTime= SystemClock.uptimeMillis();
+        // startTime= SystemClock.uptimeMillis();
     }
 
     void unbindService() {
@@ -94,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        checkPermissions();
         dist = (TextView) findViewById(R.id.distancetext);
         time = (TextView) findViewById(R.id.timetext);
         speed = (TextView) findViewById(R.id.speedtext);
@@ -172,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 pause.setVisibility(View.GONE);
                 stop.setVisibility(View.GONE);
                 dist.setVisibility(View.VISIBLE);
-              //  totalTravelledDistance.setVisibility(View.VISIBLE);
+                //  totalTravelledDistance.setVisibility(View.VISIBLE);
                 p = 0;
             }
         });
@@ -212,5 +219,20 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
     }
+    private void checkPermissions() {
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.CONTROL_LOCATION_UPDATES,
+                    Manifest.permission.INSTALL_LOCATION_PROVIDER,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+
+            }, PERMISSIONS_BUZZ_REQUEST);
+        }
+    }
 }
